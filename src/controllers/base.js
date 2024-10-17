@@ -1,7 +1,7 @@
 // abstraction / abtract class
 const ValidationError = require("../helpers/errors/validation");
 const validation = require("../middlewares/validation");
-const { generateXLSX, readXLSX } = require('../helpers/xlsx');
+const { generateXLSX, readXLSX } = require("../helpers/xlsx");
 const { Prisma } = require("@prisma/client");
 
 class BaseController {
@@ -17,15 +17,15 @@ class BaseController {
         sort = "desc",
         page = 1,
         limit = 10,
-        search = undefined
+        search = undefined,
       } = req.query;
 
-      if(search) search = this.handleSearch(search)
-      if(this.filter){
+      if (search) search = this.handleSearch(search);
+      if (this.filter) {
         search = {
           ...search,
-          AND: this.filter
-        }
+          AND: this.filter,
+        };
       }
 
       const { resources, count } = await this.model.get({
@@ -35,7 +35,7 @@ class BaseController {
           page,
           limit,
         },
-        where: search
+        where: search,
       });
 
       return res.status(200).json(
@@ -62,7 +62,9 @@ class BaseController {
       const { id } = req.params;
       const resource = await this.model.getById(id);
       if (!resource) {
-        return next(new NotFoundError(`cars ${id} not found`, "Data not found"))
+        return next(
+          new NotFoundError(`cars ${id} not found`, "Data not found")
+        );
       }
       return res.status(200).json(
         this.apiSend({
@@ -81,8 +83,8 @@ class BaseController {
       const data = {
         ...req.body,
         createdBy: req.user.fullname,
-        updatedBy: req.user.fullname
-      }
+        updatedBy: req.user.fullname,
+      };
       const resource = await this.model.set(data);
 
       return res.status(201).json(
@@ -103,8 +105,8 @@ class BaseController {
       const data = {
         ...req.body,
         createdBy: req.user.fullname,
-        updatedBy: req.user.fullname
-      }
+        updatedBy: req.user.fullname,
+      };
       const resource = await this.model.update(id, data);
 
       return res.status(200).json(
@@ -117,7 +119,7 @@ class BaseController {
     } catch (err) {
       //handle prisma not found error
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        if (err.code === 'P2025') {
+        if (err.code === "P2025") {
           return next(new NotFoundError(err, `Car with id=${id} not found!`));
         }
       }
@@ -141,7 +143,7 @@ class BaseController {
     } catch (err) {
       //handle prisma not found error
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        if (err.code === 'P2025') {
+        if (err.code === "P2025") {
           return next(new NotFoundError(err, `Car with id=${id} not found!`));
         }
       }
@@ -150,7 +152,7 @@ class BaseController {
   };
 
   export = (title) => {
-    return async(req, res, next) => {
+    return async (req, res, next) => {
       const {
         sortBy = "createdDt",
         sort = "desc",
@@ -159,35 +161,37 @@ class BaseController {
       } = req.query;
 
       const { resources, count } = await this.model.get({
-          q: {
-            sortBy,
-            sort,
-            page,
-            limit,
-          },
-          select: undefined
-        });
-      
-      generateXLSX(title, resources, res)
-    }
-  }
+        q: {
+          sortBy,
+          sort,
+          page,
+          limit,
+        },
+        select: undefined,
+      });
 
-  import = async(req, res, next) => {
+      generateXLSX(title, resources, res);
+    };
+  };
+
+  import = async (req, res, next) => {
     try {
       const { file } = req;
       const allowedFile = [
-        'application/vnd.ms-excel', //xls
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' //xlsx
-      ]
-      
-      if(allowedFile.includes(file.mimetype) === false) {
-        return next(new ValidationError("File not allowed"))
+        "application/vnd.ms-excel", //xls
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", //xlsx
+      ];
+
+      if (allowedFile.includes(file.mimetype) === false) {
+        return next(new ValidationError("File not allowed"));
       }
 
       const data = readXLSX(file);
 
-      if(!data) { return next(new ValidationError("Data is empty or corrupted!"))}
-      
+      if (!data) {
+        return next(new ValidationError("Data is empty or corrupted!"));
+      }
+
       const importData = await this.model.setMany(data);
 
       return res.status(200).json(
@@ -195,14 +199,14 @@ class BaseController {
           code: 200,
           message: "Imported successfully",
           status: "success",
-          data: importData
+          data: importData,
         })
       );
-    } catch(e) {
-      console.log(e)
-      next(new ServerError("Something went wrong"))
+    } catch (e) {
+      console.log(e);
+      next(new ServerError("Something went wrong"));
     }
-  }
+  };
 
   //fungsi ini digunakan untuk menghandle pencarian data
   //fungsi ini akan mengembalikan object yang berisi key "OR" dan value berupa array of object
@@ -211,13 +215,13 @@ class BaseController {
   handleSearch = (search) => {
     const s = {
       contains: search,
-      mode: 'insensitive'
-    }
-      
+      mode: "insensitive",
+    };
+
     return {
-      OR: this.searchField.map(e => ({ [e]: s }))
-    }
-  }
+      OR: this.searchField.map((e) => ({ [e]: s })),
+    };
+  };
 
   apiSend({ code, status, message, data, pagination }) {
     return {

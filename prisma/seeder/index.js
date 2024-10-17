@@ -1,28 +1,28 @@
+console.log(process.env.DATABASE_URL);
 const { PrismaClient } = require("@prisma/client");
-
-const userSeed = require('./seeder/user')
-const carSeed = require('./seeder/cars')
-const roleSeed = require('./seeder/role')
-const roleAccessSeed = require('./seeder/roleAccess')
+const roleSeed = require("./role");
+const menuSeed = require("./menu");
+const accessSeed = require("./access");
+const userSeed = require("./user");
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const role = await roleSeed()
-  const user = await userSeed()
-  const car = await carSeed()
-  const access = await roleAccessSeed()
+  const role = await roleSeed();
+  const user = await userSeed();
+  const menu = await menuSeed();
+  const access = await accessSeed();
 
-  console.log(user, role, car, access)
+  console.log(user, role, menu, access);
   console.log(`Database has been seeded. 🌱`);
 }
 
 main()
   .then(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

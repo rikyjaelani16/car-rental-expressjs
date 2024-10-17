@@ -81,14 +81,14 @@ class AuthController extends BaseController {
       const newUser = await this.model.set({
         email,
         password: await encryptPassword(password),
-        role: "USER",
+        role_id: 3,
       });
 
       return res.status(200).json(
         this.apiSend({
           code: 200,
           status: "success",
-          message: "Sign up successfully",
+          message: "C",
           data: {
             user: {
               ...newUser,

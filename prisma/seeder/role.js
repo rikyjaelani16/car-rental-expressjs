@@ -6,23 +6,23 @@ const ROLE = [
   {
     id: 1,
     role: "SUPERADMIN",
-    createdBy: "Super Duper Admin"
+    createdBy: "Super Duper Admin",
   },
   {
     id: 2,
     role: "ADMIN",
-    createdBy: "Super Duper Admin"
+    createdBy: "Super Duper Admin",
   },
   {
     id: 3,
     role: "USER",
-    createdBy: "Super Duper Admin"
+    createdBy: "Super Duper Admin",
   },
 ];
 
 async function roleSeed() {
-  await prisma.role.deleteMany();
-  await prisma.role.createMany({
+  await prisma.roles.deleteMany();
+  return await prisma.roles.createMany({
     data: ROLE,
   });
 }

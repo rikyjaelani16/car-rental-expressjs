@@ -1,11 +1,12 @@
 const Joi = require("joi");
 
-const BaseController = require('../base')
-const CarModel = require('../../models/cars')
-const express = require('express');
+const BaseController = require("../base");
+const CarModel = require("../../models/cars");
+const express = require("express");
 const { authorize, checkRole } = require("../../middlewares/authorization");
-const { memory } = require('../../middlewares/upload');
-var router = express.Router()
+const { memory } = require("../../middlewares/upload");
+const rbac = require("../../middlewares/rbac");
+var router = express.Router();
 
 const cars = new CarModel();
 
@@ -23,18 +24,30 @@ const carSchema = Joi.object({
   baggage: Joi.number(),
   transmission: Joi.string(),
   year: Joi.string(),
-})
+});
 
 class CarsController extends BaseController {
   constructor(model) {
     super(model);
-    this.searchField = ['name', 'type', 'manufactur', 'year']
+    this.searchField = ["name", "type", "manufactur", "year"];
     router.get("/", this.handleFilter, this.getAll);
-    router.post("/", this.validation(carSchema), authorize, checkRole(['admin']), this.create);
-    router.get("/export", this.export('cars export'));
-    router.post("/import", memory.single('file'), this.import);
+    router.post(
+      "/",
+      this.validation(carSchema),
+      authorize,
+      rbac("CARS", "create"),
+      this.create
+    );
+    router.get("/export", this.export("cars export"));
+    router.post("/import", memory.single("file"), this.import);
     router.get("/:id", this.get);
-    router.put("/:id", this.validation(carSchema), authorize, checkRole(['admin']), this.update);
+    router.put(
+      "/:id",
+      this.validation(carSchema),
+      authorize,
+      rbac("CARS", "update"),
+      this.update
+    );
     router.delete("/:id", this.delete);
   }
 
@@ -49,7 +62,7 @@ class CarsController extends BaseController {
   //  where: {
   //     OR: [ // search menggunakan OR
   //       name: {
-  //         contains: 'sedan', 
+  //         contains: 'sedan',
   //         mode: 'insensitive'
   //       }
   //     ],
@@ -61,33 +74,33 @@ class CarsController extends BaseController {
   //  }
   // yang akan digunakan sebagai parameter where di dalam prisma client
   handleFilter = (req, res, next) => {
-    let filter = []
-    console.log(req.query)
-    if(req.query.manufactur){
-      filter.push({ manufactur: req.query.manufactur })
+    let filter = [];
+    console.log(req.query);
+    if (req.query.manufactur) {
+      filter.push({ manufactur: req.query.manufactur });
     }
-    if(req.query.type){
-      filter.push({ type: req.query.type })
+    if (req.query.type) {
+      filter.push({ type: req.query.type });
     }
-    if(req.query.yearMin){
-      filter.push({ year: {gte: req.query.yearMin} })
+    if (req.query.yearMin) {
+      filter.push({ year: { gte: req.query.yearMin } });
     }
-    if(req.query.yearMax){
-      filter.push({ year: {lte: req.query.yearMin} })
+    if (req.query.yearMax) {
+      filter.push({ year: { lte: req.query.yearMin } });
     }
-    if(req.query.priceMin){
-      filter.push({ price: {gte: req.query.priceMin} })
+    if (req.query.priceMin) {
+      filter.push({ price: { gte: req.query.priceMin } });
     }
-    if(req.query.priceMax){
-      filter.push({ price: {lte: req.query.priceMax} })
+    if (req.query.priceMax) {
+      filter.push({ price: { lte: req.query.priceMax } });
     }
 
-    if(filter.length) this.filter = filter
-    
-    next()
-  }
+    if (filter.length) this.filter = filter;
+
+    next();
+  };
 }
 
 new CarsController(cars);
 
-module.exports = router
+module.exports = router;
