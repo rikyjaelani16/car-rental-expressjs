@@ -10,9 +10,9 @@
     "seed": "node ./prisma/seeder/index.js",
     "seed:test": "dotenv -e .env.test -- node ./prisma/seeder/index.js",
     "docker:up": "docker compose up -d",
-    "docker:down":"docker compose down",
+    "docker:down": "docker compose down",
     "migrate:deploy": "yarn prisma migrate deploy",
-    "pretest":"dotenv -e .env.test -- yarn migrate:deploy && yarn seed:test",
+    "pretest": "dotenv -e .env.test -- yarn migrate:deploy && yarn seed:test",
     "test": "dotenv -e .env.test -- jest -i --collectCoverage --detectOpenHandles"
   },
   "devDependencies": {
@@ -41,5 +41,6 @@
     "pg": "^8.13.0",
     "swagger-ui-express": "^5.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
